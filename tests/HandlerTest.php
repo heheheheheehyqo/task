@@ -36,7 +36,7 @@ class HandlerTest extends TestCase
 
         $handler->handle(['bin/task', 'hyqo:task:test:fixtures:error-inside']);
 
-        $this->assertMatchesSnapshot(read_and_close($tmp));
+        $this->assertStringContainsString('2: Undefined array key 1', read_and_close($tmp));
     }
 
     public function test_exception_inside()
@@ -51,7 +51,7 @@ class HandlerTest extends TestCase
 
         $handler->handle(['bin/task', 'hyqo:task:test:fixtures:exception-inside']);
 
-        $this->assertMatchesSnapshot(read_and_close($tmp));
+        $this->assertStringContainsString('Exception: error message', read_and_close($tmp));
     }
 
     public function test_invalid_run()

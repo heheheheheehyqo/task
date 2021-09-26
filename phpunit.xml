@@ -16,9 +16,15 @@
             <directory>./tests</directory>
         </testsuite>
     </testsuites>
-    <coverage>
+    <coverage includeUncoveredFiles="false"
+              ignoreDeprecatedCodeUnits="true"
+              disableCodeCoverageIgnore="true">
         <include>
-            <directory suffix=".php">./src</directory>
+            <directory suffix=".php">src</directory>
         </include>
+
+        <report>
+            <clover outputFile="build/logs/clover.xml"/>
+        </report>
     </coverage>
 </phpunit>

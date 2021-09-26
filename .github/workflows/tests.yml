@@ -14,7 +14,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php }}
-        coverage: xdebug
+        coverage: none
 
     - uses: actions/checkout@v2
 
@@ -35,10 +35,3 @@ jobs:
       
     - name: Run tests
       run: vendor/bin/phpunit
-
-    - name: Send coverage to Codacy
-      continue-on-error: true
-      uses: codacy/codacy-coverage-reporter-action@master
-      with:
-        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        coverage-reports: build/logs/clover.xml

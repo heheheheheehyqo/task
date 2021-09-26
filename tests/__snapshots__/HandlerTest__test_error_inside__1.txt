@@ -1,0 +1,3 @@
+2: Undefined array key 1
+/opt/project/tests/Fixtures/ErrorInside.php: 8
+Call: bin/task hyqo:task:test:fixtures:error-inside

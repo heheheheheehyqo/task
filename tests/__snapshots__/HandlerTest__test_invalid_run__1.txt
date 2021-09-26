@@ -1,0 +1,3 @@
+The task is not invoking correctly: Hyqo\Task\Test\Fixtures\Foo
+--message=<string> [--number=<int>] [--flag=<bool>]
+The option --message is required

@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+foreach (
+    [
+        getcwd() . '/vendor/autoload.php',
+        getcwd() . '/../vendor/autoload.php',
+        __DIR__ . '/../vendor/autoload.php'
+    ] as $path
+) {
+    if (file_exists($path)) {
+        require_once $path;
+        break;
+    }
+}
+
+(new \Hyqo\Task\Handler())->handle();

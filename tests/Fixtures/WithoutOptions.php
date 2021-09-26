@@ -2,7 +2,7 @@
 
 namespace Hyqo\Task\Test\Fixtures;
 
-class Bar
+class WithoutOptions
 {
     public string $message = 'bar';
 

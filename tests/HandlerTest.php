@@ -10,7 +10,7 @@ class HandlerTest extends TestCase
 {
     use MatchesSnapshots;
 
-    private array $fooArguments = ['', 'hyqo:task:test:fixtures:foo', '--message="test"'];
+    private array $normalTaskCall = ['', 'hyqo:task:test:fixtures:normal-task', '--message="test"'];
 
     public function test_no_task_name()
     {
@@ -20,7 +20,7 @@ class HandlerTest extends TestCase
 
     public function test_run()
     {
-        $result = (new Handler())->handle(['', 'hyqo:task:test:fixtures:bar']);
+        $result = (new Handler())->handle(['', 'hyqo:task:test:fixtures:without-options']);
         $this->assertEquals('bar', $result);
     }
 
@@ -64,17 +64,17 @@ class HandlerTest extends TestCase
             }
         };
 
-        $handler->handle(['', 'hyqo:task:test:fixtures:foo']);
+        $handler->handle(['', 'hyqo:task:test:fixtures:normal-task']);
 
         $this->assertMatchesSnapshot(read_and_close($tmp));
     }
 
     public function test_options()
     {
-        $result = (new Handler())->handle([...$this->fooArguments, '--flag']);
+        $result = (new Handler())->handle([...$this->normalTaskCall, '--flag']);
         $this->assertEquals('bar "test" with flag', $result);
 
-        $result = (new Handler())->handle([...$this->fooArguments, '--flag=false']);
+        $result = (new Handler())->handle([...$this->normalTaskCall, '--flag=false']);
         $this->assertEquals('bar "test"', $result);
     }
 
@@ -85,7 +85,7 @@ class HandlerTest extends TestCase
         $handler = new class (outputStream: $tmp) extends Handler {
         };
 
-        $handler->handle([...$this->fooArguments, '-h']);
+        $handler->handle([...$this->normalTaskCall, '-h']);
 
         $this->assertMatchesSnapshot(read_and_close($tmp));
     }

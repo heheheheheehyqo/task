@@ -4,9 +4,9 @@ namespace Hyqo\Task\Test\Fixtures;
 
 use Hyqo\Task\Annotation\Description;
 
-class Foo
+class NormalTask
 {
-    public function __construct(private Bar $bar)
+    public function __construct(private WithoutOptions $bar)
     {
     }
 

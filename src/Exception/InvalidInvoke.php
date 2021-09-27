@@ -2,8 +2,6 @@
 
 namespace Hyqo\Task\Exception;
 
-use Throwable;
-
 class InvalidInvoke extends \RuntimeException
 {
     /** @var string[] $message */

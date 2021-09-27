@@ -7,6 +7,8 @@ use Hyqo\Collection\Collection;
 use Hyqo\Container\Container;
 use Hyqo\Task\Exception\InvalidInvoke;
 use Hyqo\Task\Exception\InvalidOption;
+use Hyqo\Task\Exception\InvokeNotExists;
+use Hyqo\Task\Exception\TaskNotFound;
 
 class Task
 {
@@ -36,9 +38,14 @@ class Task
     {
         try {
             $reflection = new \ReflectionClass($classname);
+        } catch (\ReflectionException) {
+            throw new TaskNotFound($classname);
+        }
+
+        try {
             return $reflection->getMethod('__invoke');
-        } catch (\ReflectionException $e) {
-            throw new \RuntimeException($e->getMessage());
+        } catch (\ReflectionException) {
+            throw new InvokeNotExists($classname);
         }
     }
 

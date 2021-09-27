@@ -6,6 +6,8 @@ use Hyqo\Task\AsyncTask;
 use Hyqo\Task\Test\Fixtures\DeleteFile;
 use PHPUnit\Framework\TestCase;
 
+use function Hyqo\Task\async_task;
+
 class AsyncTaskTest extends TestCase
 {
     public function test_generate_task_name()
@@ -33,7 +35,8 @@ class AsyncTaskTest extends TestCase
     public function test_run()
     {
         $tmp = tempnam(__DIR__, 'test');
-        (new AsyncTask(DeleteFile::class))->run(['filename' => $tmp]);
+
+        async_task(DeleteFile::class, ['filename' => $tmp]);
         sleep(1);
 
         $this->assertFileDoesNotExist($tmp);

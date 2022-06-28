@@ -4,14 +4,23 @@ namespace Hyqo\Task;
 
 use Hyqo\Cli;
 
+use Hyqo\Container\Container;
 use Hyqo\Task\Exception\InvalidInvoke;
+
+use Hyqo\Task\Exception\InvalidResolver;
 
 use function Hyqo\String\PascalCase;
 
 class Handler
 {
+    /** @var Container */
+    protected $container;
+
     /** @var string */
     protected $namespace;
+
+    /** @var ?\Closure */
+    protected $resolver;
 
     /** @var resource */
     protected $outputStream;
@@ -20,13 +29,26 @@ class Handler
     protected $errorStream;
 
     public function __construct(
-        string $namespace = '',
         $outputStream = STDOUT,
         $errorStream = STDERR
     ) {
-        $this->namespace = $namespace;
         $this->outputStream = $outputStream;
         $this->errorStream = $errorStream;
+    }
+
+    /** @codeCoverageIgnore */
+    public function setContainer(Container $container): self
+    {
+        $this->container = $container;
+
+        return $this;
+    }
+
+    public function setResolver(\Closure $resolver): self
+    {
+        $this->resolver = $resolver;
+
+        return $this;
     }
 
     public function handle(?array $argv = null)
@@ -37,7 +59,7 @@ class Handler
 
         $flags = $arguments->getShortOptions();
 
-        $task = new Task($this->prepareTaskClass($arguments->getFirst()));
+        $task = new Task($this->prepareTaskClass($arguments->getFirst()), $this->container);
 
         if ($flags['h'] ?? false) {
             Cli\Output::send($task->generateDescription(), $this->outputStream);
@@ -66,7 +88,7 @@ class Handler
         return null;
     }
 
-    private function setErrorHandlers(Cli\Arguments $arguments): void
+    protected function setErrorHandlers(Cli\Arguments $arguments): void
     {
         set_error_handler(
             function (int $number, string $message, string $filename, int $line) use ($arguments) {
@@ -81,7 +103,7 @@ class Handler
         );
     }
 
-    private function restoreErrorHandlers(): void
+    protected function restoreErrorHandlers(): void
     {
         restore_error_handler();
     }
@@ -92,22 +114,27 @@ class Handler
         exit(1);
     }
 
-    private function prepareTaskClass(?string $dirtyClassname): string
+    protected function prepareTaskClass(?string $dirtyClassname): string
     {
         if ($dirtyClassname === null) {
             throw new \InvalidArgumentException('You must specify the task name');
         }
 
-        $classname = implode(
-            '\\',
-            array_map(
-                static function (string $chunk) {
-                    return PascalCase($chunk);
-                },
-                explode(':', $dirtyClassname)
-            )
+        $chunks = array_map(
+            static function (string $chunk) {
+                return PascalCase($chunk);
+            },
+            explode(':', $dirtyClassname)
         );
 
-        return $this->namespace . $classname;
+        if (null !== $this->resolver) {
+            $chunks = ($this->resolver)($chunks);
+
+            if (!is_array($chunks)) {
+                throw new InvalidResolver('Resolver must return an array');
+            }
+        }
+
+        return implode('\\', $chunks);
     }
 }

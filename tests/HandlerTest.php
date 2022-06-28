@@ -2,6 +2,7 @@
 
 namespace Hyqo\Task\Test;
 
+use Hyqo\Task\Exception\InvalidResolver;
 use Hyqo\Task\Handler;
 use PHPUnit\Framework\TestCase;
 use Spatie\Snapshots\MatchesSnapshots;
@@ -15,7 +16,7 @@ class HandlerTest extends TestCase
     public function test_no_task_name()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $result = (new Handler())->handle(['']);
+        (new Handler())->handle(['']);
     }
 
     public function test_run()
@@ -28,7 +29,7 @@ class HandlerTest extends TestCase
     {
         $tmp = tmpfile();
 
-        $handler = new class ('', STDOUT, $tmp) extends Handler {
+        $handler = new class (STDOUT, $tmp) extends Handler {
             protected function terminate(): void
             {
             }
@@ -46,7 +47,7 @@ class HandlerTest extends TestCase
     {
         $tmp = tmpfile();
 
-        $handler = new class ('', STDOUT, $tmp) extends Handler {
+        $handler = new class (STDOUT, $tmp) extends Handler {
             protected function terminate(): void
             {
             }
@@ -61,7 +62,7 @@ class HandlerTest extends TestCase
     {
         $tmp = tmpfile();
 
-        $handler = new class ('', STDOUT, $tmp) extends Handler {
+        $handler = new class (STDOUT, $tmp) extends Handler {
             protected function terminate(): void
             {
             }
@@ -85,12 +86,38 @@ class HandlerTest extends TestCase
     {
         $tmp = tmpfile();
 
-        $handler = new class ('', $tmp) extends Handler {
+        $handler = new class ($tmp) extends Handler {
         };
 
         $handler->handle(array_merge($this->normalTaskCall, ['-h']));
 
         $this->assertMatchesSnapshot(read_and_close($tmp));
+    }
+
+    public function test_resolver()
+    {
+        $handler = new Handler();
+        $handler->setResolver(function (array $chunks) {
+            end($chunks);
+            $chunks[key($chunks)] .= 'Task';
+
+            return $chunks;
+        });
+
+        $result = $handler->handle(['', 'hyqo:task:test:fixtures:normal', '--message=foo']);
+
+        $this->assertMatchesSnapshot($result);
+    }
+
+    public function test_incorrect_resolver()
+    {
+        $this->expectException(InvalidResolver::class);
+
+        $handler = new Handler();
+        $handler->setResolver(function (array $chunks) {
+        });
+
+        $handler->handle(['', 'foo']);
     }
 }
 

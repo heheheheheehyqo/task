@@ -10,7 +10,7 @@ class HandlerTest extends TestCase
 {
     use MatchesSnapshots;
 
-    private array $normalTaskCall = ['', 'hyqo:task:test:fixtures:normal-task', '--message="test"'];
+    private $normalTaskCall = ['', 'hyqo:task:test:fixtures:normal-task', '--message="test"'];
 
     public function test_no_task_name()
     {
@@ -28,7 +28,7 @@ class HandlerTest extends TestCase
     {
         $tmp = tmpfile();
 
-        $handler = new class (errorStream: $tmp) extends Handler {
+        $handler = new class ('', STDOUT, $tmp) extends Handler {
             protected function terminate(): void
             {
             }
@@ -36,14 +36,17 @@ class HandlerTest extends TestCase
 
         $handler->handle(['bin/task', 'hyqo:task:test:fixtures:error-inside']);
 
-        $this->assertStringContainsString('2: Undefined array key 1', read_and_close($tmp));
+        $output = read_and_close($tmp);
+
+        $this->assertStringContainsString('Undefined', $output);
+        $this->assertStringContainsString('Call: bin/task hyqo:task:test:fixtures:error-inside', $output);
     }
 
     public function test_exception_inside()
     {
         $tmp = tmpfile();
 
-        $handler = new class (errorStream: $tmp) extends Handler {
+        $handler = new class ('', STDOUT, $tmp) extends Handler {
             protected function terminate(): void
             {
             }
@@ -58,7 +61,7 @@ class HandlerTest extends TestCase
     {
         $tmp = tmpfile();
 
-        $handler = new class (errorStream: $tmp) extends Handler {
+        $handler = new class ('', STDOUT, $tmp) extends Handler {
             protected function terminate(): void
             {
             }
@@ -71,10 +74,10 @@ class HandlerTest extends TestCase
 
     public function test_options()
     {
-        $result = (new Handler())->handle([...$this->normalTaskCall, '--flag']);
+        $result = (new Handler())->handle(array_merge($this->normalTaskCall, ['--flag']));
         $this->assertEquals('bar "test" with flag', $result);
 
-        $result = (new Handler())->handle([...$this->normalTaskCall, '--flag=false']);
+        $result = (new Handler())->handle(array_merge($this->normalTaskCall, ['--flag=false']));
         $this->assertEquals('bar "test"', $result);
     }
 
@@ -82,10 +85,10 @@ class HandlerTest extends TestCase
     {
         $tmp = tmpfile();
 
-        $handler = new class (outputStream: $tmp) extends Handler {
+        $handler = new class ('', $tmp) extends Handler {
         };
 
-        $handler->handle([...$this->normalTaskCall, '-h']);
+        $handler->handle(array_merge($this->normalTaskCall, ['-h']));
 
         $this->assertMatchesSnapshot(read_and_close($tmp));
     }

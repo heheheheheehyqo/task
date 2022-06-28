@@ -6,8 +6,12 @@ use Hyqo\Task\Annotation\Description;
 
 class NormalTask
 {
-    public function __construct(private WithoutOptions $bar)
+    /** @var WithoutOptions */
+    private $bar;
+
+    public function __construct(WithoutOptions $bar)
     {
+        $this->bar = $bar;
     }
 
     public function __invoke(

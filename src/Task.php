@@ -2,23 +2,30 @@
 
 namespace Hyqo\Task;
 
-use Hyqo\CLI\Output;
 use Hyqo\Collection\Collection;
 use Hyqo\Container\Container;
 use Hyqo\Task\Exception\InvalidInvoke;
-use Hyqo\Task\Exception\InvalidOption;
 use Hyqo\Task\Exception\InvokeNotExists;
 use Hyqo\Task\Exception\TaskNotFound;
 
 class Task
 {
-    private \ReflectionMethod $invokeMethod;
+    /** @var Container */
+    protected $container;
+
+    /** @var string */
+    protected $classname;
+
+    /** @var \ReflectionMethod */
+    protected $invokeMethod;
 
     /** @var Collection<Option> */
-    private Collection $options;
+    protected $options;
 
-    public function __construct(private string $classname)
+    public function __construct(string $classname, ?Container $container = null)
     {
+        $this->container = $container ?? new Container();
+        $this->classname = $classname;
         $this->invokeMethod = self::getInvokeMethod($classname);
         $this->options = new Collection();
 
@@ -34,17 +41,17 @@ class Task
         return $this->classname;
     }
 
-    private static function getInvokeMethod(string $classname): \ReflectionMethod
+    protected static function getInvokeMethod(string $classname): \ReflectionMethod
     {
         try {
             $reflection = new \ReflectionClass($classname);
-        } catch (\ReflectionException) {
+        } catch (\ReflectionException $e) {
             throw new TaskNotFound($classname);
         }
 
         try {
             return $reflection->getMethod('__invoke');
-        } catch (\ReflectionException) {
+        } catch (\ReflectionException $e) {
             throw new InvokeNotExists($classname);
         }
     }
@@ -82,23 +89,23 @@ class Task
         if ($errors) {
             $example = (new Help($this->options))->generateExample();
 
-            throw new InvalidInvoke([$this->classname, $example, ...$errors]);
+            throw new InvalidInvoke($this->classname, $example, $errors);
         }
 
         return $collection;
     }
 
-    public function run(array $arguments = []): mixed
+    public function run(array $arguments = [])
     {
         $collection = $this->validateArguments($arguments);
         $invokeArguments = $collection->map(
-            fn(Argument $argument) => yield $argument->getOptionName() => $argument->getValue()
+            function (Argument $argument) {
+                yield $argument->getOptionName() => $argument->getValue();
+            }
         );
 
-        $container = Container::getInstance();
+        $task = $this->container->make($this->classname);
 
-        $task = $container->make($this->classname);
-
-        return $container->call([$task, $this->invokeMethod->getName()], $invokeArguments);
+        return $this->container->call([$task, $this->invokeMethod->getName()], $invokeArguments);
     }
 }

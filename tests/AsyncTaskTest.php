@@ -39,6 +39,6 @@ class AsyncTaskTest extends TestCase
         async_task(DeleteFile::class, ['filename' => $tmp]);
         sleep(1);
 
-        $this->assertFileDoesNotExist($tmp);
+        $this->assertFileNotExists($tmp);
     }
 }

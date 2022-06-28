@@ -7,20 +7,28 @@ use Hyqo\Task\Exception\InvalidOption;
 
 class Option
 {
-    private const TYPES = ['int', 'string', 'bool'];
+    protected const TYPES = ['int', 'string', 'bool'];
 
-    private string $name;
+    /** @var \ReflectionParameter */
+    protected $reflectionParameter;
 
-    private string $type;
+    /** @var string */
+    protected $name;
 
-    private ?string $description;
+    /** @var string */
+    protected $type;
 
-    private bool $required = true;
+    /** @var string|null */
+    protected $description;
 
-    private mixed $default = null;
+    /** @var bool */
+    protected $required = true;
 
-    public function __construct(private \ReflectionParameter $reflectionParameter)
+    protected $default = null;
+
+    public function __construct(\ReflectionParameter $reflectionParameter)
     {
+        $this->reflectionParameter = $reflectionParameter;
         $this->name = $this->reflectionParameter->getName();
         $this->type = $this->extractType();
         $this->description = $this->extractDescription();
@@ -36,9 +44,9 @@ class Option
     {
         $typeReflection = $this->reflectionParameter->getType();
 
-        if ($typeReflection instanceof \ReflectionUnionType) {
-            throw new InvalidOption("The parameter \${$this->name} can't be a union type");
-        }
+//        if ($typeReflection instanceof \ReflectionUnionType) {
+//            throw new InvalidOption("The parameter \${$this->name} can't be a union type");
+//        }
 
         if ($typeReflection instanceof \ReflectionNamedType) {
             if (!in_array($typeReflection->getName(), self::TYPES)) {
@@ -62,12 +70,12 @@ class Option
 
     private function extractDescription(): ?string
     {
-        $descriptionAttributes = $this->reflectionParameter->getAttributes(Description::class);
-        if ($descriptionAttributes) {
-            /** @var Description $descriptionAttribute */
-            $descriptionAttribute = $descriptionAttributes[0]->newInstance();
-            return $descriptionAttribute->getText();
-        }
+//        $descriptionAttributes = $this->reflectionParameter->getAttributes(Description::class);
+//        if ($descriptionAttributes) {
+//            /** @var Description $descriptionAttribute */
+//            $descriptionAttribute = $descriptionAttributes[0]->newInstance();
+//            return $descriptionAttribute->getText();
+//        }
         return null;
     }
 
@@ -91,7 +99,7 @@ class Option
         return $this->required;
     }
 
-    public function getDefault(): mixed
+    public function getDefault()
     {
         return $this->default;
     }

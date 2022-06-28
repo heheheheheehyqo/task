@@ -59,10 +59,10 @@ class TaskTest extends TestCase
         task(UntypedOption::class);
     }
 
-    public function test_invalid_option_union_type()
-    {
-        $this->expectException(InvalidOption::class);
-
-        task(UnionType::class);
-    }
+//    public function test_invalid_option_union_type()
+//    {
+//        $this->expectException(InvalidOption::class);
+//
+//        task(UnionType::class);
+//    }
 }

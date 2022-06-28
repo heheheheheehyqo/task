@@ -4,9 +4,8 @@ namespace Hyqo\Task\Exception;
 
 class InvalidInvoke extends \RuntimeException
 {
-    /** @var string[] $message */
-    public function __construct(array $message)
+    public function __construct(string $classname, string $example, array $errors)
     {
-        parent::__construct(implode("\n", $message));
+        parent::__construct(sprintf("%s\n%s\n\n%s", $classname, implode("\n", $errors), $example));
     }
 }

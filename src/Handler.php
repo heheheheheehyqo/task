@@ -2,27 +2,36 @@
 
 namespace Hyqo\Task;
 
-use Hyqo\CLI\Arguments;
-use Hyqo\CLI\Output;
+use Hyqo\Cli;
 
 use Hyqo\Task\Exception\InvalidInvoke;
-
-use JetBrains\PhpStorm\NoReturn;
 
 use function Hyqo\String\PascalCase;
 
 class Handler
 {
+    /** @var string */
+    protected $namespace;
+
+    /** @var resource */
+    protected $outputStream;
+
+    /** @var resource */
+    protected $errorStream;
+
     public function __construct(
-        private string $namespace = '',
-        private $outputStream = STDOUT,
-        private $errorStream = STDERR,
+        string $namespace = '',
+        $outputStream = STDOUT,
+        $errorStream = STDERR
     ) {
+        $this->namespace = $namespace;
+        $this->outputStream = $outputStream;
+        $this->errorStream = $errorStream;
     }
 
-    public function handle(?array $argv = null): mixed
+    public function handle(?array $argv = null)
     {
-        $arguments = new Arguments($argv);
+        $arguments = new Cli\Arguments($argv);
 
         $this->setErrorHandlers($arguments);
 
@@ -31,18 +40,18 @@ class Handler
         $task = new Task($this->prepareTaskClass($arguments->getFirst()));
 
         if ($flags['h'] ?? false) {
-            Output::send($task->generateDescription(), $this->outputStream);
+            Cli\Output::send($task->generateDescription(), $this->outputStream);
         } else {
             try {
                 return $task->run($arguments->getLongOptions());
             } catch (InvalidInvoke $e) {
                 $message = sprintf('<error>The task is not invoking correctly: %s</error>', $e->getMessage());
 
-                Output::send($message, $this->errorStream);
+                Cli\Output::send($message, $this->errorStream);
 
                 $this->terminate();
             } catch (\Throwable $e) {
-                Output::send([
+                Cli\Output::send([
                     sprintf('<error>%s</error>: %s', get_class($e), $e->getMessage()),
                     sprintf('%s:%s', $e->getFile(), $e->getLine()),
                     sprintf('<trace>%s</trace>', $e->getTraceAsString()),
@@ -57,11 +66,11 @@ class Handler
         return null;
     }
 
-    private function setErrorHandlers(Arguments $arguments): void
+    private function setErrorHandlers(Cli\Arguments $arguments): void
     {
         set_error_handler(
             function (int $number, string $message, string $filename, int $line) use ($arguments) {
-                Output::send([
+                Cli\Output::send([
                     sprintf('<error>%d: %s</error>', $number, $message),
                     sprintf('<error>%s: %d</error>', $filename, $line),
                     sprintf('<trace>Call: %s</trace>', implode(' ', $arguments->getAll())),
@@ -78,7 +87,6 @@ class Handler
     }
 
     /** @codeCoverageIgnore */
-    #[NoReturn]
     protected function terminate(): void
     {
         exit(1);
@@ -93,7 +101,9 @@ class Handler
         $classname = implode(
             '\\',
             array_map(
-                fn(string $chunk) => PascalCase($chunk),
+                static function (string $chunk) {
+                    return PascalCase($chunk);
+                },
                 explode(':', $dirtyClassname)
             )
         );

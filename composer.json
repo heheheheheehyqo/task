@@ -14,15 +14,15 @@
     ],
     "bin": "bin/task",
     "require": {
-        "php": ">=8.0",
+        "php": ">=7.2",
         "hyqo/string": "^2.0",
-        "hyqo/container": "^2.0",
-        "hyqo/command-line": "^1.0",
-        "hyqo/collection": "^1.0"
+        "hyqo/container": "^1.0",
+        "hyqo/command-line": "^0.1",
+        "hyqo/collection": "^0.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.0",
-        "spatie/phpunit-snapshot-assertions": "^4.0"
+        "phpunit/phpunit": "^8.5",
+        "spatie/phpunit-snapshot-assertions": "^3.0"
     },
     "autoload": {
         "psr-4": {

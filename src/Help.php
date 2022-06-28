@@ -6,13 +6,20 @@ use Hyqo\Collection\Collection;
 
 class Help
 {
-    private Collection $required;
-    private Collection $optional;
+    /** @var Collection<Option> */
+    protected $required;
+
+    /** @var Collection<Option> */
+    protected $optional;
 
     public function __construct(Collection $options)
     {
-        $this->required = $options->filter(fn(Option $option) => $option->isRequired());
-        $this->optional = $options->filter(fn(Option $option) => !$option->isRequired());
+        $this->required = $options->filter(function (Option $option) {
+            return $option->isRequired();
+        });
+        $this->optional = $options->filter(function (Option $option) {
+            return !$option->isRequired();
+        });
     }
 
     public function generateExample(): string
@@ -21,17 +28,25 @@ class Help
             ' ',
             array_filter(
                 array_map(
-                    fn(array $values) => implode(' ', $values),
+                    static function (array $values) {
+                        return implode(' ', $values);
+                    },
                     [
                         $this->required->map(
-                            fn(Option $option) => $option->getShortHelp()
+                            function (Option $option) {
+                                return $option->getShortHelp();
+                            }
                         ),
                         $this->optional->map(
-                            fn(Option $option) => "[{$option->getShortHelp()}]"
+                            function (Option $option) {
+                                return "[{$option->getShortHelp()}]";
+                            }
                         ),
                     ]
                 ),
-                fn(string $chunk) => $chunk !== '',
+                static function (string $chunk) {
+                    return $chunk !== '';
+                }
             )
         );
     }

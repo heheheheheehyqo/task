@@ -32,12 +32,12 @@ class Help
                         return implode(' ', $values);
                     },
                     [
-                        $this->required->map(
+                        $this->required->toArray(
                             function (Option $option) {
                                 return $option->getShortHelp();
                             }
                         ),
-                        $this->optional->map(
+                        $this->optional->toArray(
                             function (Option $option) {
                                 return "[{$option->getShortHelp()}]";
                             }

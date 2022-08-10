@@ -16,9 +16,9 @@
     "require": {
         "php": ">=7.2 <8.0",
         "hyqo/string": "^2.0",
-        "hyqo/container": "^1.0",
+        "hyqo/container": "^2.0",
         "hyqo/command-line": "^0.1",
-        "hyqo/collection": "^0.1"
+        "hyqo/collection": "^0.5"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5",

@@ -70,7 +70,6 @@ class Task
         $collection = new Collection();
         $errors = [];
 
-        /** @var Option $option */
         foreach ($this->options as $option) {
             $name = $option->getName();
             $value = $arguments[$name] ?? null;
@@ -98,7 +97,7 @@ class Task
     public function run(array $arguments = [])
     {
         $collection = $this->validateArguments($arguments);
-        $invokeArguments = $collection->map(
+        $invokeArguments = $collection->toArray(
             function (Argument $argument) {
                 yield $argument->getOptionName() => $argument->getValue();
             }

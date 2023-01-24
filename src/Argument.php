@@ -4,11 +4,9 @@ namespace Hyqo\Task;
 
 class Argument
 {
-    /** @var Option */
-    public $option;
+    public Option $option;
 
-    /** @var string|int|bool */
-    protected $value;
+    protected string|int|bool $value;
 
     public function __construct(Option $option, $value)
     {
@@ -21,28 +19,21 @@ class Argument
         return $this->option->getName();
     }
 
-    /** @return string|int|bool */
-    public function getValue()
+    public function getValue(): bool|int|string
     {
-        switch ($this->option->getType()) {
-            case 'bool':
-                return (bool)$this->value;
-            case 'int':
-                return (int)$this->value;
-            default:
-                return $this->value;
-        }
+        return match ($this->option->getType()) {
+            'bool' => (bool)$this->value,
+            'int' => (int)$this->value,
+            default => $this->value,
+        };
     }
 
     public function stringify(): string
     {
-        switch ($this->option->getType()) {
-            case 'string':
-                $value = sprintf('"%s"', addcslashes($this->value, '"'));
-                break;
-            default:
-                $value = var_export($this->value, true);
-        }
+        $value = match ($this->option->getType()) {
+            'string' => sprintf('"%s"', addcslashes($this->value, '"')),
+            default => var_export($this->value, true),
+        };
 
         return sprintf(
             '--%s=%s',

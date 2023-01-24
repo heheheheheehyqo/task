@@ -7,10 +7,10 @@ use Hyqo\Collection\Collection;
 class Help
 {
     /** @var Collection<Option> */
-    protected $required;
+    protected Collection $required;
 
     /** @var Collection<Option> */
-    protected $optional;
+    protected Collection $optional;
 
     public function __construct(Collection $options)
     {

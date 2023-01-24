@@ -2,7 +2,7 @@
 
 namespace Hyqo\Task\Exception;
 
-class InvokeNotExists extends \InvalidArgumentException
+class InvokeNotExistsException extends \InvalidArgumentException
 {
     public function __construct(string $classname)
     {

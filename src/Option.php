@@ -3,28 +3,23 @@
 namespace Hyqo\Task;
 
 use Hyqo\Task\Annotation\Description;
-use Hyqo\Task\Exception\InvalidOption;
+use Hyqo\Task\Exception\InvalidOptionException;
 
 class Option
 {
     protected const TYPES = ['int', 'string', 'bool'];
 
-    /** @var \ReflectionParameter */
-    protected $reflectionParameter;
+    protected \ReflectionParameter $reflectionParameter;
 
-    /** @var string */
-    protected $name;
+    protected string $name;
 
-    /** @var string */
-    protected $type;
+    protected string $type;
 
-    /** @var string|null */
-    protected $description;
+    protected ?string $description;
 
-    /** @var bool */
-    protected $required = true;
+    protected bool $required = true;
 
-    protected $default = null;
+    protected mixed $default = null;
 
     public function __construct(\ReflectionParameter $reflectionParameter)
     {
@@ -44,13 +39,13 @@ class Option
     {
         $typeReflection = $this->reflectionParameter->getType();
 
-//        if ($typeReflection instanceof \ReflectionUnionType) {
-//            throw new InvalidOption("The parameter \${$this->name} can't be a union type");
-//        }
+        if ($typeReflection instanceof \ReflectionUnionType) {
+            throw new InvalidOptionException("The parameter \${$this->name} can't be a union type");
+        }
 
         if ($typeReflection instanceof \ReflectionNamedType) {
             if (!in_array($typeReflection->getName(), self::TYPES)) {
-                throw new InvalidOption(
+                throw new InvalidOptionException(
                     sprintf(
                         "The parameter \${$this->name} can be only typed as: %s",
                         implode(', ', self::TYPES)
@@ -58,7 +53,7 @@ class Option
                 );
             }
         } else {
-            throw new InvalidOption(
+            throw new InvalidOptionException(
                 sprintf(
                     "The parameter \${$this->name} must be typed (%s)",
                     implode(', ', self::TYPES)
@@ -70,12 +65,12 @@ class Option
 
     private function extractDescription(): ?string
     {
-//        $descriptionAttributes = $this->reflectionParameter->getAttributes(Description::class);
-//        if ($descriptionAttributes) {
-//            /** @var Description $descriptionAttribute */
-//            $descriptionAttribute = $descriptionAttributes[0]->newInstance();
-//            return $descriptionAttribute->getText();
-//        }
+        $descriptionAttributes = $this->reflectionParameter->getAttributes(Description::class);
+        if ($descriptionAttributes) {
+            /** @var Description $descriptionAttribute */
+            $descriptionAttribute = $descriptionAttributes[0]->newInstance();
+            return $descriptionAttribute->getText();
+        }
         return null;
     }
 

@@ -2,7 +2,7 @@
 
 namespace Hyqo\Task\Exception;
 
-class TaskNotFound extends \InvalidArgumentException
+class TaskNotFoundException extends \InvalidArgumentException
 {
     public function __construct(string $classname)
     {

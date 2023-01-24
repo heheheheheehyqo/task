@@ -20,7 +20,7 @@ class AsyncTask extends Task
 
     protected function generateTaskName(): string
     {
-        return (string)s($this->getClassname())
+        return s($this->getClassname())
             ->pregReplace([
                 '/\\\\([A-Z])/',
                 '/(?<=[a-z])([A-Z])/',

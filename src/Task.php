@@ -4,23 +4,20 @@ namespace Hyqo\Task;
 
 use Hyqo\Collection\Collection;
 use Hyqo\Container\Container;
-use Hyqo\Task\Exception\InvalidInvoke;
-use Hyqo\Task\Exception\InvokeNotExists;
-use Hyqo\Task\Exception\TaskNotFound;
+use Hyqo\Task\Exception\InvalidInvokeException;
+use Hyqo\Task\Exception\InvokeNotExistsException;
+use Hyqo\Task\Exception\TaskNotFoundException;
 
 class Task
 {
-    /** @var Container */
-    protected $container;
+    protected Container $container;
 
-    /** @var string */
-    protected $classname;
+    protected string $classname;
 
-    /** @var \ReflectionMethod */
-    protected $invokeMethod;
+    protected \ReflectionMethod $invokeMethod;
 
     /** @var Collection<Option> */
-    protected $options;
+    protected Collection $options;
 
     public function __construct(string $classname, ?Container $container = null)
     {
@@ -46,13 +43,13 @@ class Task
         try {
             $reflection = new \ReflectionClass($classname);
         } catch (\ReflectionException $e) {
-            throw new TaskNotFound($classname);
+            throw new TaskNotFoundException($classname);
         }
 
         try {
             return $reflection->getMethod('__invoke');
         } catch (\ReflectionException $e) {
-            throw new InvokeNotExists($classname);
+            throw new InvokeNotExistsException($classname);
         }
     }
 
@@ -88,7 +85,7 @@ class Task
         if ($errors) {
             $example = (new Help($this->options))->generateExample();
 
-            throw new InvalidInvoke($this->classname, $example, $errors);
+            throw new InvalidInvokeException($this->classname, $example, $errors);
         }
 
         return $collection;

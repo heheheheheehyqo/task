@@ -10,7 +10,7 @@ use function Hyqo\Task\async_task;
 
 class AsyncTaskTest extends TestCase
 {
-    public function test_generate_task_name()
+    public function test_generate_task_name(): void
     {
         $generateTaskName = new \ReflectionMethod(AsyncTask::class, "generateTaskName");
         $generateTaskName->setAccessible(true);
@@ -21,7 +21,7 @@ class AsyncTaskTest extends TestCase
         $this->assertEquals('hyqo:task:test:fixtures:delete-file', $taskName);
     }
 
-    public function test_generate_options()
+    public function test_generate_options(): void
     {
         $generateOptions = new \ReflectionMethod(AsyncTask::class, "generateOptions");
         $generateOptions->setAccessible(true);
@@ -32,13 +32,13 @@ class AsyncTaskTest extends TestCase
         $this->assertEquals('--filename="path" --flag=true', $options);
     }
 
-    public function test_run()
+    public function test_run(): void
     {
         $tmp = tempnam(__DIR__, 'test');
 
         async_task(DeleteFile::class, ['filename' => $tmp]);
         sleep(1);
 
-        $this->assertFileNotExists($tmp);
+        $this->assertFileDoesNotExist($tmp);
     }
 }

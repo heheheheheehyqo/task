@@ -1,10 +1,9 @@
-<?php return 'Example:
+Example:
 --message=<string> [--number=<int>] [--flag=<bool>]
 
 Required:
---message=<string>
+--message=<string> — Message for return
 
 Optional:
 --number=<int>
 --flag=<bool>
-';

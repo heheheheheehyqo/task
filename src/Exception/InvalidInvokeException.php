@@ -2,7 +2,7 @@
 
 namespace Hyqo\Task\Exception;
 
-class InvalidInvoke extends \RuntimeException
+class InvalidInvokeException extends \RuntimeException
 {
     public function __construct(string $classname, string $example, array $errors)
     {

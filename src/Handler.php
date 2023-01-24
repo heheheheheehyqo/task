@@ -5,35 +5,23 @@ namespace Hyqo\Task;
 use Hyqo\Cli;
 
 use Hyqo\Container\Container;
-use Hyqo\Task\Exception\InvalidInvoke;
+use Hyqo\Task\Exception\InvalidInvokeException;
 
-use Hyqo\Task\Exception\InvalidResolver;
+use Hyqo\Task\Exception\InvalidResolverException;
+
+use JetBrains\PhpStorm\NoReturn;
 
 use function Hyqo\String\PascalCase;
 
 class Handler
 {
-    /** @var Container */
-    protected $container;
-
-    /** @var string */
-    protected $namespace;
-
-    /** @var ?\Closure */
-    protected $resolver;
-
-    /** @var resource */
-    protected $outputStream;
-
-    /** @var resource */
-    protected $errorStream;
+    protected ?\Closure $resolver = null;
 
     public function __construct(
-        $outputStream = STDOUT,
-        $errorStream = STDERR
+        protected ?Container $container = null,
+        protected $outputStream = STDOUT,
+        protected $errorStream = STDERR
     ) {
-        $this->outputStream = $outputStream;
-        $this->errorStream = $errorStream;
     }
 
     /** @codeCoverageIgnore */
@@ -66,7 +54,7 @@ class Handler
         } else {
             try {
                 return $task->run($arguments->getLongOptions());
-            } catch (InvalidInvoke $e) {
+            } catch (InvalidInvokeException $e) {
                 $message = sprintf('<error>The task is not invoking correctly: %s</error>', $e->getMessage());
 
                 Cli\Output::send($message, $this->errorStream);
@@ -109,6 +97,7 @@ class Handler
     }
 
     /** @codeCoverageIgnore */
+    #[NoReturn]
     protected function terminate(): void
     {
         exit(1);
@@ -116,7 +105,7 @@ class Handler
 
     protected function prepareTaskClass(?string $dirtyClassname): string
     {
-        if ($dirtyClassname === null) {
+        if (null === $dirtyClassname) {
             throw new \InvalidArgumentException('You must specify the task name');
         }
 
@@ -131,7 +120,7 @@ class Handler
             $chunks = ($this->resolver)($chunks);
 
             if (!is_array($chunks)) {
-                throw new InvalidResolver('Resolver must return an array');
+                throw new InvalidResolverException('Resolver must return an array');
             }
         }
 

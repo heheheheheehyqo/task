@@ -14,7 +14,7 @@
     ],
     "bin": "bin/task",
     "require": {
-        "php": "^8.0",
+        "php": "^8.2",
         "hyqo/string": "^3.0",
         "hyqo/container": "^3.0",
         "hyqo/command-line": "^0.2",
